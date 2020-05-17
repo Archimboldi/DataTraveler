@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataTraveler</title>
+    <link rel="stylesheet" href="./lib/index.css">
+    <script src="./lib/vue.min.js"></script>
+    <script src="./lib/index.js"></script>
+    <script src="./lib/axios.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <el-tabs v-model="activeName">
+            <el-tab-pane label="放映室" name="film">
+                <div v-for="(item,index) in films" style="display: inline;margin-left: 10px;">
+                    <el-button size="mini" style="margin-top: 10px;" @click="btnCf(index)">{{item}}</el-button>
+                </div>
+                <h3><i class="el-icon-video-camera-solid"></i> {{film}}</h3>
+                <video id="video" controls preload style="width: 100%;" ref="vide"></video>
+            </el-tab-pane>
+            <el-tab-pane label="电台" name="music">
+                <el-upload
+                    class="upload-m"
+                    action="/upload"
+                    multiple
+                    :show-file-list="false"
+                    :on-success="mhandleFileSuccess">
+                    <el-button size="mini" type="primary">上传</el-button>
+                </el-upload>
+                <div v-for="(item,index) in musics" style="display: inline;margin-left: 10px;">
+                    <el-button size="mini" style="margin-top: 10px;" @click="btnCm(index)">{{item}}</el-button>
+                </div>
+                <h3><i class="el-icon-headset"></i> {{music}}</h3>
+                <audio controls preload style="display: block;margin: auto;" ref="musi"></audio>
+            </el-tab-pane>
+            <el-tab-pane label="彩色相册" name="picture">
+                <el-upload
+                    class="upload-p"
+                    action="/upload"
+                    multiple
+                    :show-file-list="false"
+                    :on-success="phandleFileSuccess">
+                    <el-button size="mini" type="primary">上传</el-button>
+                </el-upload>
+                <div v-for="(item,index) in pictures" style="display: inline;margin-left: 10px;">
+                    <el-button size="mini" style="margin-top: 10px;" @click="btnCp(index)">{{item}}</el-button>
+                </div>
+                <h3><i class="el-icon-picture"></i> {{picture}}</h3>
+                <img src="" style="width: 100%;" ref="pictur">
+            </el-tab-pane>
+        </el-tabs>
+    </div>
+    
+    <script>
+        axios.get("/list").then(res=>{
+            var list = res.data;
+            new Vue({
+                el: '#app',
+                data: function() {
+                    return {
+                        activeName: 'film',
+                        films: list[0],
+                        musics: list[1],
+                        pictures: list[2],
+                        film: '放映室',
+                        music: '电台',
+                        picture: '彩色相片',
+                    };
+                },
+                methods: {
+                    btnCf: function(ind){
+                        this.$refs.vide.src = "./film/"+this.films[ind];
+                        this.film = this.films[ind];
+                    },
+                    btnCm: function(ind){
+                        this.$refs.musi.src = "./music/"+this.musics[ind];
+                        this.music = this.musics[ind];
+                    },
+                    btnCp: function(ind){
+                        this.$refs.pictur.src = "./picture/"+this.pictures[ind];
+                        this.picture = this.pictures[ind];
+                    },
+                    mhandleFileSuccess (res, file) {
+                        this.musics.push(file.name);
+                        this.$notify.success({
+                            title: '成功',
+                            message: '文件上传成功'
+                        })
+                    },
+                    phandleFileSuccess (res, file) {
+                        this.pictures.push(file.name);
+                        this.$notify.success({
+                            title: '成功',
+                            message: '文件上传成功'
+                        })
+                    }
+                }
+            })
+        })
+    </script>
+</body>
+</html>
